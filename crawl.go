@@ -100,15 +100,10 @@ func stripLinks(s string) string {
 }
 
 func isCrawled(url u.URL) bool {
-
 	mutex.Lock()
 	_, alreadyCrawled := crawled[url]
 	mutex.Unlock()
-
-	if !alreadyCrawled {
-		return false
-	}
-	return true
+	return alreadyCrawled
 }
 
 func shouldCrawl(potential u.URL) bool {
