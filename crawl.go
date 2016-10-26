@@ -10,14 +10,7 @@ import (
 	"time"
 )
 
-type TestedUrl struct {
-	Url        u.URL
-	Status     int
-	LinkedUrls []u.URL
-}
-
 var crawled map[u.URL]bool = make(map[u.URL]bool)
-
 var mutex = &sync.Mutex{}
 
 var netClient = &http.Client{
@@ -25,11 +18,6 @@ var netClient = &http.Client{
 }
 
 func Crawl(url u.URL) {
-	wg.Add(1)
-	go worker(url)
-}
-
-func worker(url u.URL) {
 
 	if isCrawled(url) != true {
 
@@ -56,7 +44,7 @@ func worker(url u.URL) {
 			for _, child := range tested.LinkedUrls {
 				if shouldCrawl(child) {
 					wg.Add(1)
-					go worker(child)
+					go Crawl(child)
 				}
 			}
 		}

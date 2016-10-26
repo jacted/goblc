@@ -9,6 +9,12 @@ import (
 	"sync"
 )
 
+type TestedUrl struct {
+	Url        u.URL
+	Status     int
+	LinkedUrls []u.URL
+}
+
 var wg sync.WaitGroup
 
 var crawlResults = make(chan TestedUrl)
@@ -37,7 +43,8 @@ func main() {
 	fmt.Printf("Getting links from: %s\n", seedUrl)
 
 	// Crawl site
-	Crawl(*seedUrl)
+	wg.Add(1)
+	go Crawl(*seedUrl)
 
 	// Each results should output to the terminal
 	go func() {
