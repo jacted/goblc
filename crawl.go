@@ -61,14 +61,21 @@ func findLinks(url u.URL) (chan TestedUrl, chan error) {
 
 	go func() {
 
-		res, err := netClient.Get(url.String())
+		req, err := http.NewRequest("GET", url.String(), nil)
+		req.Header.Add("Accept-Encoding", "identity")
+		req.Close = true
+
+		res, err := netClient.Do(req)
 		if err != nil {
 			errChan <- err
+			return
 		}
+		defer res.Body.Close()
 
 		doc, err := goquery.NewDocumentFromResponse(res)
 		if err != nil {
 			errChan <- err
+			return
 		}
 
 		linkedUrls := make([]u.URL, 0)
