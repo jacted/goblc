@@ -74,7 +74,7 @@ func findLinks(url u.URL) (chan TestedUrl, chan error) {
 
 		doc, err := goquery.NewDocumentFromResponse(res)
 		if err != nil {
-			errChan <- err
+			errChan <- fmt.Errorf("Error parsing %s", url.String())
 			return
 		}
 
