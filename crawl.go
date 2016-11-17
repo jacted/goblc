@@ -2,21 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"net/http"
 	u "net/url"
 	str "strings"
 	"sync"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
-var crawled map[u.URL]bool = make(map[u.URL]bool)
+var crawled = make(map[u.URL]bool)
 var mutex = &sync.Mutex{}
 
 var netClient = &http.Client{
 	Timeout: time.Second * 20,
 }
 
+// Crawl - Function that crawls a given URL
 func Crawl(url u.URL) {
 
 	if isCrawled(url) != true {
@@ -27,8 +29,8 @@ func Crawl(url u.URL) {
 
 		testedChan, errChan := findLinks(url)
 
-		var tested TestedUrl
-		var testedErr bool = false
+		var tested TestedURL
+		var testedErr = false
 		select {
 		case t := <-testedChan:
 			tested = t
@@ -55,8 +57,9 @@ func Crawl(url u.URL) {
 
 }
 
-func findLinks(url u.URL) (chan TestedUrl, chan error) {
-	c := make(chan TestedUrl)
+// findLinks - Function that finds every link on the page
+func findLinks(url u.URL) (chan TestedURL, chan error) {
+	c := make(chan TestedURL)
 	errChan := make(chan error)
 
 	go func() {
@@ -89,7 +92,7 @@ func findLinks(url u.URL) (chan TestedUrl, chan error) {
 			linkedUrls = append(linkedUrls, *url.ResolveReference(parsed))
 		})
 
-		c <- TestedUrl{url, res.StatusCode, linkedUrls}
+		c <- TestedURL{url, res.StatusCode, linkedUrls}
 		close(c)
 
 	}()
@@ -114,5 +117,5 @@ func isCrawled(url u.URL) bool {
 }
 
 func shouldCrawl(potential u.URL) bool {
-	return seedUrlStatic.Host == potential.Host
+	return seedURLStatic.Host == potential.Host
 }

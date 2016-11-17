@@ -3,22 +3,24 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
 	u "net/url"
 	"os"
 	"sync"
+
+	"github.com/fatih/color"
 )
 
-type TestedUrl struct {
-	Url        u.URL
+// TestedURL - Represents a struct for collection data
+type TestedURL struct {
+	URL        u.URL
 	Status     int
 	LinkedUrls []u.URL
 }
 
 var wg sync.WaitGroup
 
-var crawlResults = make(chan TestedUrl)
-var seedUrlStatic u.URL
+var crawlResults = make(chan TestedURL)
+var seedURLStatic u.URL
 
 func main() {
 
@@ -32,19 +34,19 @@ func main() {
 	flag.Parse()
 
 	// Parse and check if website it valid
-	seedUrl, err := u.ParseRequestURI(*cliWebsite)
+	seedURL, err := u.ParseRequestURI(*cliWebsite)
 	if err != nil {
 		fmt.Println("Invalid website.")
 		os.Exit(1)
 	}
-	seedUrlStatic = *seedUrl
+	seedURLStatic = *seedURL
 
 	// Start the checker
-	fmt.Printf("Getting links from: %s\n", seedUrl)
+	fmt.Printf("Getting links from: %s\n", seedURL)
 
 	// Crawl site
 	wg.Add(1)
-	go Crawl(*seedUrl)
+	go Crawl(*seedURL)
 
 	// Each results should output to the terminal
 	go func() {
@@ -63,7 +65,7 @@ func main() {
 				}
 			}
 
-			fmt.Printf("%v - %v\n", statusMessage, link.Url.String())
+			fmt.Printf("%v - %v\n", statusMessage, link.URL.String())
 
 		}
 	}()
